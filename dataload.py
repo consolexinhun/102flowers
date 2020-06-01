@@ -69,17 +69,22 @@ def split(dir, batch_size, mode):
         df = pd.read_csv('./54_data/train.csv')
         if df.shape[0] != len(os.listdir(os.path.join(dir))): # 先判断训练集中的图片和csv中记录的图片数量是不是一样的
             assert "image number not equal train.csv"
-        for i, filename in enumerate(os.listdir(os.path.join(dir))):
+        train_files = os.listdir(os.path.join(dir))
+        train_files.sort(key=lambda x:int(x[:-4]))
+        for i, filename in enumerate(train_files):
             images.append(os.path.join(dir, filename))
             # print(df.loc[df['filename'] == filename].values[0, 1]) # 返回一个二维数组，第一维是几个行，第二维是几列
             labels.append(df.loc[df['filename'] == filename].values[0, 1]) # 把图片对应的标签提取出来
         train_load = DataLoader(MyDataSet(images, 'train', labels), batch_size, shuffle=False)
         return train_load
     elif mode == 'test':
-        for filename in os.listdir(os.path.join(dir)):
+        test_files = os.listdir(os.path.join(dir))
+        test_files.sort(key=lambda x:int(x[:-4]))
+        for filename in test_files:
             images.append(os.path.join(dir, filename))
 
-        print(len(images))
+        print(images)
+        # print(len(images))
         test_load = DataLoader(MyDataSet(images, 'test'), batch_size)
         return test_load
 
@@ -88,11 +93,14 @@ if __name__ == '__main__':
     '''
     注意显示的时候必须把正则化关了
     '''
-    viz = visdom.Visdom()
-
-    img, label = next(iter(TrainLoad))
-
-    viz.images(img, win='batch', opts=dict(title='batch'))
-    viz.text(str(label.numpy()), win='label', opts=dict(title='batch-label'))
+    # viz = visdom.Visdom()
+    #
+    # img, label = next(iter(TrainLoad))
+    #
+    # viz.images(img, win='batch', opts=dict(title='batch'))
+    # viz.text(str(label.numpy()), win='label', opts=dict(title='batch-label'))
 
     TestLoad = split('./54_data/test', 1, 'test')
+
+    # sample = next(iter(TestLoad))
+    # print(sample)
